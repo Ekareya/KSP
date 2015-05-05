@@ -148,7 +148,7 @@ namespace AutoSmartParts
 
         public override void OnFixedUpdate()
         {           
-            if (FlightUIController.fetch.gears.currentState == 1)
+            if (FlightUIController.fetch.gears.currentState == 1 && AutoGearOn)
             {              
                 lastAlt = alt;
                 alt = dist2ground();
