@@ -6,10 +6,51 @@ namespace AutoSmartParts
 {
     public class AutoGear : PartModule
     {
-        /* You if you had the autogear module to a part, it needs to have the modulelandinggear module as well. otherwise, bad thing may happen =p.
+        /* if you had the autogear module to a part, it needs to have the modulelandinggear module as well. otherwise, bad thing may happen =p.
          * if you know how to hardcode the dependency, i'm all ears.
          */
-        
+
+        #region attribut
+        [KSPField(isPersistant = true)]
+        public int LowerAltitude = 0;
+
+        [KSPField(isPersistant = true)]
+        public int RaiseAltitude = 0;
+
+        [KSPField(isPersistant = true)]
+        public bool raiseOverOcean = true;
+
+        private double alt = 0;
+
+        private double lastAlt = 0;
+
+        private Boolean isLow = true;
+
+        private Boolean onGround = true;
+
+        [KSPField(isPersistant = true)]
+        public bool AutoGearOn = true;
+
+        public bool EditorOn = false;
+
+
+
+        //public bool InfoOn = false;
+        #endregion
+
+        #region methode
+        private void Message(String message)
+        {
+            ScreenMessages.PostScreenMessage(message, 5.0f, ScreenMessageStyle.UPPER_CENTER);
+        }
+
+        private bool overOcean()
+        {
+            return FlightGlobals.ActiveVessel.pqsAltitude < 0;
+        }
+        #endregion
+
+        #region GUI
         private Rect windowPos = new Rect();
 
         private void OnDraw()
@@ -29,59 +70,44 @@ namespace AutoSmartParts
             GUILayout.BeginHorizontal();
             GUILayout.Label("Raising Altitude", GUILayout.Width(100f));
             RaiseAltitude = (int)GUILayout.HorizontalSlider((float)RaiseAltitude, 10, 1000, GUILayout.Width(100f));
-            RaiseAltitude = int.Parse(GUILayout.TextArea(RaiseAltitude+"",4,GUILayout.Width(40f)));
+            RaiseAltitude = int.Parse(GUILayout.TextArea(RaiseAltitude + "", 4, GUILayout.Width(40f)));
             GUILayout.Label("m");
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Raise over Ocean");
-            Ocean = GUILayout.Toggle(Ocean, "" );
+            raiseOverOcean = GUILayout.Toggle(raiseOverOcean, "");
             GUILayout.EndHorizontal();
-            
+
             //Debug
-            GUILayout.BeginVertical();
-
-            GUILayout.Label("Ascending : "+ascending,GUILayout.Width(300f));
-            GUILayout.Label("Altitude : "+alt,GUILayout.Width(300f));
-            GUILayout.Label("isLow : "+isLow,GUILayout.Width(300f));
-            GUILayout.Label("onGround : "+onGround,GUILayout.Width(300f));
-            GUILayout.Label("",GUILayout.Width(100f));
-            GUILayout.Label("",GUILayout.Width(100f));
-            GUILayout.EndVertical();
-
+ /*
+                GUILayout.BeginVertical();
+                GUILayout.Label("Debug-------------------------", GUILayout.Width(300f));
+                GUILayout.Label("Ascending : " + ascending, GUILayout.Width(300f));
+                GUILayout.Label("Altitude : " + alt, GUILayout.Width(300f));
+                GUILayout.Label("isLow : " + isLow, GUILayout.Width(300f));
+                GUILayout.Label("onGround : " + onGround, GUILayout.Width(300f));
+                GUILayout.Label("overOcean : " + oc, GUILayout.Width(300f));      
+                GUILayout.Label("Vessel altitu : "+fgavalt, GUILayout.Width(300f));
+                GUILayout.Label("Vessel pqsAlt : " + fgavpqsalt, GUILayout.Width(300f));
+                GUILayout.EndVertical();
+  */
             GUI.DragWindow();
         }
-        
-        [KSPField(isPersistant = true, guiName = "AutoGear")]
-        public bool AutoGearOn = true;
-        public bool EditorOn = false;
-        public bool Ocean = false;
-        //public bool InfoOn = false;
+        #endregion
 
-        [KSPEvent(guiActive = true, guiActiveEditor = true, active = true, guiName = "Turn AutoGear off")] // make it togglabe through action group
-        public void ToggleAutoGear()
+        #region tweakable
+
+        [KSPEvent(guiActive = true, guiActiveEditor = true, active = true, guiName = "Turn AutoGear off")] 
+        public void ToggleAutoGear()// toggleable through action group
         {
             AutoGearOn = !AutoGearOn;
             Events["ToggleAutoGear"].guiName = (AutoGearOn ? "Turn AutoGear off" : "Turn AutoGear on");
-            Events["ToggleInfo"].active = AutoGearOn;
             Events["ToggleEditor"].active = AutoGearOn;
         }
         
-        /*[KSPEvent(guiActive = true, guiActiveEditor = true, active = true, guiName= "    Show AGInfo")]
-        public void ToggleInfo()
-        {
-            InfoOn = !InfoOn;
-            Events["ToggleInfo"].guiName = (InfoOn ? "    Hide AGInfo" : "    Show AGInfo");
-            Message("L=" + Fields["AltitudeL"].guiActive);
-            Message("R=" + Fields["AltitudeR"].guiActive);
-            Fields["AltitudeL"].guiActive = InfoOn;
-            Fields["AltitudeR"].guiActive = InfoOn;
-            Fields["AltitudeL"].guiActiveEditor = InfoOn;
-            Fields["AltitudeR"].guiActiveEditor = InfoOn;
-        }*/
-
         [KSPEvent(guiActive = true, guiActiveEditor = true, active = true, guiName = "    Turn AGEditor on" )]
-        public void ToggleEditor()
+        public void ToggleEditor() // toggleable through action group
         {
             EditorOn = !EditorOn;
             Events["ToggleEditor"].guiName = (EditorOn ? "    Turn AGEditor off" : "    Turn AGEditor on");
@@ -92,116 +118,134 @@ namespace AutoSmartParts
                 RenderingManager.RemoveFromPostDrawQueue(0, OnDraw);
         }
 
-        [KSPField(isPersistant = true, guiName = "AltitudeL")]
-        public int LowerAltitude = 0;
-
-        [KSPField(isPersistant = true, guiName = "AltitudeR", guiUnits = " m")]
-        public int RaiseAltitude = 0;
        
-
-
-        [KSPField(isPersistant = true, guiName = "Altitude", guiActive = true , guiUnits="m")]
-        private double alt = 0;
-
-        private double lastAlt = 0;
-
-        
-        [KSPField(isPersistant = true)]
-         private Boolean ascending = false;
-
-        [KSPField(isPersistant = true)]
-        private Boolean isLow = true;
-
-        [KSPField(isPersistant = true)]
-        private Boolean onGround = true;
-        
         public override string GetInfo()
         {
             return "\nContains the TAC Example - Simple Part Module\n";
         }
-
-        private void Message(String message)
+        #endregion
+        
+        #region action
+        [KSPAction("Toggle Automation")]
+        public void actTg(KSPActionParam kap)
         {
-            ScreenMessages.PostScreenMessage(message, 5.0f, ScreenMessageStyle.UPPER_CENTER);
+            ToggleAutoGear();
+        }
+
+        [KSPAction("Toggle Editor")]
+        public void actTgEd(KSPActionParam kap)
+        {
+            ToggleEditor();
+        }
+        #endregion
+        
+        #region pipeline
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node); 
         }
 
         public override void OnStart(StartState state)
         {
-            
-            isLow = true; //<= a definir mieux que ca avec le "start retracted " field
-            onGround = true;
-            // verifier Modules["ModuleLandingGear"] existe, sinon shutdown?
-            //if altitude = 0
+
+            Message(LowerAltitude + "_____" + RaiseAltitude);
+
+            if (state == StartState.Editor) 
+            {
+                Message("editeur");
+                Events["ToggleAutoGearEditor"].active = true;
+            }
+            else
+            {
+                Message("pas editeur");
+                Events["ToggleAutoGear"].active = true;
+                Events["ToggleAutoGear"].guiName = (AutoGearOn ? "Turn AutoGear off" : "Turn AutoGear on");
+                switch ((int)((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).gearState)
+                {
+                    case 0:
+                    case 3:
+                    case 4: isLow = false; break;
+                    case 1:
+                    case 2: isLow = true; break;
+                }
+                onGround = true;
+                // verifier Modules["ModuleLandingGear"] existe, sinon shutdown?  this.enabled = false ???
+                //if altitude = 0
+            }
             if (LowerAltitude == 0 && RaiseAltitude == 0)
             {
                 LowerAltitude = 150;
                 RaiseAltitude = 20;
             }
-
-            if (state == StartState.Editor) 
-            {
-                
-            }
             
         }
 
 
-        public override void OnFixedUpdate()
-        {           
-            if (FlightUIController.fetch.gears.currentState == 1 && AutoGearOn)
-            {              
-                lastAlt = alt;
-                alt = dist2ground();
-                 //coupler isLow et var truc = ((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).gearState; pour gerer quand on le bouge a la main.
-               ascending = (lastAlt < alt ? true : false);
-                    //essayer de ne pas prendre en compte les petites variations entre lowalt et raialt i.e  more fuzzyness
-                if (isLow && /*ascending &&*/ alt > RaiseAltitude)
+        public override void OnFixedUpdate()//check every 10 update ?
+        {
+            lastAlt = alt;
+
+            if (FlightGlobals.ActiveVessel.heightFromTerrain < 10 && !overOcean()) // <10 because you don't need that much precision over 10m. and it avoid the go up and raycast go through you bug
+            {
+                RaycastHit pHit;
+                Vector3 partEdge = this.part.collider.ClosestPointOnBounds(FlightGlobals.currentMainBody.position);
+                Physics.Raycast(partEdge, FlightGlobals.ActiveVessel.mainBody.position, out pHit);
+                alt = pHit.distance;
+            }
+            else if (overOcean())
+                alt = FlightGlobals.ActiveVessel.altitude;
+            else
+                alt = FlightGlobals.ActiveVessel.heightFromTerrain; 
+            
+
+            switch ((int)((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).gearState)
+            {
+                case 0:
+                case 3:
+                case 4: isLow = false; break;
+                case 1:
+                case 2: isLow = true; break;
+            }
+
+            if ((FlightUIController.fetch.gears.currentState == 1 && AutoGearOn))
+            {
+                if ((int)this.vessel.situation < 3)
+                    onGround = true;
+
+                if (raiseOverOcean && overOcean())
                 {
-                    if (onGround || alt > LowerAltitude) // what if you change the value inflight in the editor?
+                    if (isLow)
                     {
-                        Message("Raising gear");
                         ((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).RaiseLandingGear();
                         isLow = false;
                         onGround = false;
                     }
                 }
-                else if (!ascending && !isLow && alt < LowerAltitude)
+                else
                 {
-                    Message("Lowering gear");
-                    ((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).LowerLandingGear();
-                    isLow = true;
+                    //essayer de ne pas prendre en compte les petites variations entre lowalt et raialt i.e  more fuzzyness
+                    if (isLow && alt > RaiseAltitude)
+                    {
+                        if (onGround || alt > LowerAltitude)
+                        {
+                            ((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).RaiseLandingGear();
+                            isLow = false;
+                            onGround = false;
+                        }
+                    }
+                    else if (!isLow && alt < LowerAltitude)
+                    {
+                        if( lastAlt > alt)// if descending
+                        {
+                            ((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).LowerLandingGear();
+                            isLow = true;
+                        }
+                    }
                 }
-                if (alt < 1)
-                     onGround = true;
             }
         }
 
-        private double dist2ground()
-        {
-            RaycastHit pHit;
-            Vector3 partEdge = this.part.collider.ClosestPointOnBounds(FlightGlobals.currentMainBody.position);
-            Physics.Raycast(partEdge, FlightGlobals.ActiveVessel.mainBody.position, out pHit);
-            double landHeight = pHit.distance;
-
-            if (FlightGlobals.ActiveVessel.mainBody.ocean && landHeight > FlightGlobals.ActiveVessel.altitude) //if mainbody has ocean we land on water before the seabed
-            {
-                    landHeight = FlightGlobals.ActiveVessel.altitude;
-            }
-
-            return landHeight;
-        }
-
-
-
-
-        
-        
-        
-    
-       
-
-
-        
+#endregion
 
     }
 }
