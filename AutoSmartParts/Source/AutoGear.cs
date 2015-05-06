@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace AutoSmartParts
 {
@@ -9,7 +7,19 @@ namespace AutoSmartParts
         /* if you had the autogear module to a part, it needs to have the modulelandinggear module as well. otherwise, bad thing may happen =p.
          * if you know how to hardcode the dependency, i'm all ears.
          */
-
+        /* TODO:
+         * Space plane inside a space plane?
+         * when autogear off => reset gear to actiongroup state.
+         * Activate only on selected body
+         * faire les calculs que tout les x updates
+         */
+        /*???
+         * Cas ou vessel est dock? 
+         */
+        /*Modif
+         *Raycast layer mask 
+         * 
+         */
         #region attribut
         [KSPField(isPersistant = true)]
         public int LowerAltitude = 0;
@@ -24,22 +34,19 @@ namespace AutoSmartParts
 
         private double lastAlt = 0;
 
-        private Boolean isLow = true;
+        private bool isLow = true;
 
-        private Boolean onGround = true;
+        private bool onGround = true;
 
         [KSPField(isPersistant = true)]
         public bool AutoGearOn = true;
 
-        public bool EditorOn = false;
+        private bool EditorOn = false;
 
-
-
-        //public bool InfoOn = false;
         #endregion
 
         #region methode
-        private void Message(String message)
+        private void Message(string message)
         {
             ScreenMessages.PostScreenMessage(message, 5.0f, ScreenMessageStyle.UPPER_CENTER);
         }
@@ -97,6 +104,10 @@ namespace AutoSmartParts
         #endregion
 
         #region tweakable
+        public override string GetInfo()
+        {
+            return "\nAutomatic toggle link to the altitude\n";
+        }
 
         [KSPEvent(guiActive = true, guiActiveEditor = true, active = true, guiName = "Turn AutoGear off")] 
         public void ToggleAutoGear()// toggleable through action group
@@ -106,11 +117,11 @@ namespace AutoSmartParts
             Events["ToggleEditor"].active = AutoGearOn;
         }
         
-        [KSPEvent(guiActive = true, guiActiveEditor = true, active = true, guiName = "    Turn AGEditor on" )]
+        [KSPEvent(guiActive = true, guiActiveEditor = true, active = true, guiName = "    Turn Editor on" )]
         public void ToggleEditor() // toggleable through action group
         {
             EditorOn = !EditorOn;
-            Events["ToggleEditor"].guiName = (EditorOn ? "    Turn AGEditor off" : "    Turn AGEditor on");
+            Events["ToggleEditor"].guiName = (EditorOn ? "    Turn Editor off" : "    Turn Editor on");
            
             if (EditorOn)
                 RenderingManager.AddToPostDrawQueue(0, OnDraw);
@@ -118,11 +129,6 @@ namespace AutoSmartParts
                 RenderingManager.RemoveFromPostDrawQueue(0, OnDraw);
         }
 
-       
-        public override string GetInfo()
-        {
-            return "\nContains the TAC Example - Simple Part Module\n";
-        }
         #endregion
         
         #region action
@@ -140,26 +146,15 @@ namespace AutoSmartParts
         #endregion
         
         #region pipeline
-        public override void OnLoad(ConfigNode node)
-        {
-            base.OnLoad(node); 
-        }
 
         public override void OnStart(StartState state)
         {
-
-            Message(LowerAltitude + "_____" + RaiseAltitude);
-
+            Events["ToggleAutoGear"].guiName = (AutoGearOn ? "Turn AutoGear off" : "Turn AutoGear on");
             if (state == StartState.Editor) 
             {
-                Message("editeur");
-                Events["ToggleAutoGearEditor"].active = true;
             }
             else
             {
-                Message("pas editeur");
-                Events["ToggleAutoGear"].active = true;
-                Events["ToggleAutoGear"].guiName = (AutoGearOn ? "Turn AutoGear off" : "Turn AutoGear on");
                 switch ((int)((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).gearState)
                 {
                     case 0:
@@ -170,7 +165,6 @@ namespace AutoSmartParts
                 }
                 onGround = true;
                 // verifier Modules["ModuleLandingGear"] existe, sinon shutdown?  this.enabled = false ???
-                //if altitude = 0
             }
             if (LowerAltitude == 0 && RaiseAltitude == 0)
             {
@@ -185,11 +179,11 @@ namespace AutoSmartParts
         {
             lastAlt = alt;
 
-            if (FlightGlobals.ActiveVessel.heightFromTerrain < 10 && !overOcean()) // <10 because you don't need that much precision over 10m. and it avoid the go up and raycast go through you bug
+            if (FlightGlobals.ActiveVessel.heightFromTerrain < 100 && !overOcean()) // <10 because you don't need that much precision over 10m. and it avoid the go up and raycast go through you bug
             {
                 RaycastHit pHit;
                 Vector3 partEdge = this.part.collider.ClosestPointOnBounds(FlightGlobals.currentMainBody.position);
-                Physics.Raycast(partEdge, FlightGlobals.ActiveVessel.mainBody.position, out pHit);
+                Physics.Raycast(partEdge, FlightGlobals.ActiveVessel.mainBody.position, out pHit, (float)(FlightGlobals.ActiveVessel.mainBody.Radius + FlightGlobals.ActiveVessel.altitude), 33792);
                 alt = pHit.distance;
             }
             else if (overOcean())
@@ -197,7 +191,7 @@ namespace AutoSmartParts
             else
                 alt = FlightGlobals.ActiveVessel.heightFromTerrain; 
             
-
+            //check de l'état pour eviter des bugs en cas de controle manuel
             switch ((int)((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).gearState)
             {
                 case 0:
