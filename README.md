@@ -28,4 +28,4 @@ It won't extend inside a fairing.
 - Auto decouple on empty tank
 
 
-License: MIT.
+**License:** MIT.
