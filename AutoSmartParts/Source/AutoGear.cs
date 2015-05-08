@@ -12,6 +12,7 @@ namespace AutoSmartParts
          * when autogear off => reset gear to actiongroup state.
          * Activate only on selected body
          * faire les calculs que tout les x updates
+         * Default / setting
          */
         /*???
          * Cas ou vessel est dock? 
@@ -68,37 +69,38 @@ namespace AutoSmartParts
         private void OnWindow(int windowId)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Lowering Altitude", GUILayout.Width(100f));
-            LowerAltitude = (int)GUILayout.HorizontalSlider((float)LowerAltitude, 10, 1000, GUILayout.Width(100f));
-            LowerAltitude = int.Parse(GUILayout.TextArea(LowerAltitude + "", 4, GUILayout.Width(40f)));
-            GUILayout.Label("m");
+                GUILayout.Label("Lowering Altitude", GUILayout.Width(100f));
+                LowerAltitude = (int)GUILayout.HorizontalSlider((float)LowerAltitude, 10, 1000, GUILayout.Width(100f));
+                LowerAltitude = int.Parse(GUILayout.TextArea(LowerAltitude + "", 4, GUILayout.Width(40f)));
+                GUILayout.Label("m");
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Raising Altitude", GUILayout.Width(100f));
-            RaiseAltitude = (int)GUILayout.HorizontalSlider((float)RaiseAltitude, 10, 1000, GUILayout.Width(100f));
-            RaiseAltitude = int.Parse(GUILayout.TextArea(RaiseAltitude + "", 4, GUILayout.Width(40f)));
-            GUILayout.Label("m");
+                GUILayout.Label("Raising Altitude", GUILayout.Width(100f));
+                RaiseAltitude = (int)GUILayout.HorizontalSlider((float)RaiseAltitude, 10, 1000, GUILayout.Width(100f));
+                RaiseAltitude = int.Parse(GUILayout.TextArea(RaiseAltitude + "", 4, GUILayout.Width(40f)));
+                GUILayout.Label("m");
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Raise over Ocean");
-            raiseOverOcean = GUILayout.Toggle(raiseOverOcean, "");
+                GUILayout.Label("Raise over Ocean");
+                raiseOverOcean = GUILayout.Toggle(raiseOverOcean, "");
             GUILayout.EndHorizontal();
 
             //Debug
- /*
-                GUILayout.BeginVertical();
+ 
+            GUILayout.BeginVertical();
                 GUILayout.Label("Debug-------------------------", GUILayout.Width(300f));
-                GUILayout.Label("Ascending : " + ascending, GUILayout.Width(300f));
+                //GUILayout.Label("Ascending : " + ascending, GUILayout.Width(300f));
                 GUILayout.Label("Altitude : " + alt, GUILayout.Width(300f));
-                GUILayout.Label("isLow : " + isLow, GUILayout.Width(300f));
+                /*GUILayout.Label("isLow : " + isLow, GUILayout.Width(300f));
                 GUILayout.Label("onGround : " + onGround, GUILayout.Width(300f));
                 GUILayout.Label("overOcean : " + oc, GUILayout.Width(300f));      
                 GUILayout.Label("Vessel altitu : "+fgavalt, GUILayout.Width(300f));
                 GUILayout.Label("Vessel pqsAlt : " + fgavpqsalt, GUILayout.Width(300f));
-                GUILayout.EndVertical();
-  */
+                */
+            GUILayout.EndVertical();
+  
             GUI.DragWindow();
         }
         #endregion
@@ -155,6 +157,7 @@ namespace AutoSmartParts
             }
             else
             {
+                this.part.force_activate();
                 switch ((int)((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).gearState)
                 {
                     case 0:
@@ -165,6 +168,7 @@ namespace AutoSmartParts
                 }
                 onGround = true;
                 // verifier Modules["ModuleLandingGear"] existe, sinon shutdown?  this.enabled = false ???
+                //this.part.RemoveModule();
             }
             if (LowerAltitude == 0 && RaiseAltitude == 0)
             {
@@ -177,6 +181,7 @@ namespace AutoSmartParts
 
         public override void OnFixedUpdate()//check every 10 update ?
         {
+           
             lastAlt = alt;
 
             if (FlightGlobals.ActiveVessel.heightFromTerrain < 100 && !overOcean()) // <10 because you don't need that much precision over 10m. and it avoid the go up and raycast go through you bug

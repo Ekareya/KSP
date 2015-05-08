@@ -4,6 +4,11 @@ namespace AutoSmartParts
 {
     public class AutoLeg : PartModule
     {
+
+        /*TODO
+         * what if landing leg is broken?
+         * 
+         */
         #region attribut
         [KSPField(isPersistant = true)]
         public int Altitude;
@@ -46,30 +51,17 @@ namespace AutoSmartParts
         private void OnWindow(int windowId)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Altitude", GUILayout.Width(100f));
-            Altitude = (int)GUILayout.HorizontalSlider((float)Altitude, 10, 1000, GUILayout.Width(100f));
-            Altitude = int.Parse(GUILayout.TextArea(Altitude + "", 4, GUILayout.Width(40f)));
-            GUILayout.Label("m");
+                GUILayout.Label("Altitude", GUILayout.Width(100f));
+                Altitude = (int)GUILayout.HorizontalSlider((float)Altitude, 10, 1000, GUILayout.Width(100f));
+                Altitude = int.Parse(GUILayout.TextArea(Altitude + "", 4, GUILayout.Width(40f)));
+                GUILayout.Label("m");
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Raise over Ocean");
-            raiseOverOcean = GUILayout.Toggle(raiseOverOcean, "");
+                GUILayout.Label("Raise over Ocean");
+                raiseOverOcean = GUILayout.Toggle(raiseOverOcean, "");
             GUILayout.EndHorizontal();
-
-            //Debug
-            /*
-                           GUILayout.BeginVertical();
-                           GUILayout.Label("Debug-------------------------", GUILayout.Width(300f));
-                           GUILayout.Label("Ascending : " + ascending, GUILayout.Width(300f));
-                           GUILayout.Label("Altitude : " + alt, GUILayout.Width(300f));
-                           GUILayout.Label("isLow : " + isLow, GUILayout.Width(300f));
-                           GUILayout.Label("onGround : " + onGround, GUILayout.Width(300f));
-                           GUILayout.Label("overOcean : " + oc, GUILayout.Width(300f));      
-                           GUILayout.Label("Vessel altitu : "+fgavalt, GUILayout.Width(300f));
-                           GUILayout.Label("Vessel pqsAlt : " + fgavpqsalt, GUILayout.Width(300f));
-                           GUILayout.EndVertical();
-             */
+             
             GUI.DragWindow();
         }
 
@@ -125,6 +117,7 @@ namespace AutoSmartParts
             }
             else
             {
+                this.part.force_activate();
                 switch ((int)((ModuleLandingLeg)this.part.Modules["ModuleLandingLeg"]).legState)
                 {
                     case 0:

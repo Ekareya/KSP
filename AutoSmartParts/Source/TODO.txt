@@ -1,0 +1,29 @@
+TODO:general
+* GUI windows with general setting to apply to all parts at once
+* Default / setting
+* faire les calculs que toute les x updates
+* Career Mode
+* 
+
+
+TODO: Gear
+* Space plane inside a space plane?
+* when autogear off => reset gear to actiongroup state.
+* Activate only on selected body
+* 
+* 
+
+
+TODO: Deploy
+* Deploy on Landing
+* Activate after parent activation ex spaceplane payload
+* 
+* 
+
+TODO: Leg
+* what if landing leg is broken?
+* 
+* 
+
+TODO: Light
+* vessel.solarflux

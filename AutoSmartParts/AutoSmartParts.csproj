@@ -45,9 +45,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\AutoDeploy.cs" />
     <Compile Include="Source\AutoLeg.cs" />
     <Compile Include="Source\AutoGear.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\AutoBrake.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AutoSmartParts.cfg" />
@@ -55,6 +57,7 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="Plugins\AutoSmartParts.dll" />
+    <Content Include="Source\TODO.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
