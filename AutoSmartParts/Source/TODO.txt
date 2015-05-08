@@ -3,7 +3,23 @@ TODO:general
 * Default / setting
 * faire les calculs que toute les x updates
 * Career Mode
-* 
+*     //
+    // Summary:
+    //     Add a function to this callback and it will be called when your part is deleted
+    //     in the editor.
+    public Callback OnEditorDestroy;
+    //
+    // Summary:
+    //     Add a function to this callback and it will be called when your part is detached,
+    //     or is part of a set of parts that are detached, in the editor.
+    public Callback OnEditorDetach;
+    //
+    // Summary:
+    //     Add a function to this callback and it will be called when your part is about
+    //     to be destroyed during flight.
+    public Callback OnJustAboutToBeDestroyed;
+*  use that to get rid of the editor when need be
+*
 
 
 TODO: Gear
@@ -17,8 +33,11 @@ TODO: Gear
 TODO: Deploy
 * Deploy on Landing
 * Activate after parent activation ex spaceplane payload
+* safe indicator ? 
+* work for antenna
 * 
 * 
+
 
 TODO: Leg
 * what if landing leg is broken?
@@ -27,3 +46,13 @@ TODO: Leg
 
 TODO: Light
 * vessel.solarflux
+* 
+
+TODO: Tank
+* link tank to engine
+* empty tank
+* 
+
+TODO: Decoupler
+* 
+* 

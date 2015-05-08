@@ -27,6 +27,7 @@ namespace AutoSmartParts
 
         private bool EditorOn = false;
 
+        private int count = 0;
         #endregion
 
         #region methode
@@ -61,7 +62,21 @@ namespace AutoSmartParts
                 GUILayout.Label("Raise over Ocean");
                 raiseOverOcean = GUILayout.Toggle(raiseOverOcean, "");
             GUILayout.EndHorizontal();
-             
+             //Debug
+ 
+            GUILayout.BeginVertical();
+                GUILayout.Label("Debug-------------------------", GUILayout.Width(300f));
+                GUILayout.Label("Ascending : " + (alt > lastAlt), GUILayout.Width(300f));
+                GUILayout.Label("heightF  : " + FlightGlobals.ActiveVessel.heightFromTerrain, GUILayout.Width(300f));
+                GUILayout.Label("Altitude : " + alt, GUILayout.Width(300f));
+                GUILayout.Label("LastAlte : " + lastAlt, GUILayout.Width(300f));
+                GUILayout.Label("isLow : " + isLow, GUILayout.Width(300f));
+                GUILayout.Label("onGround : " + this.vessel.situation, GUILayout.Width(300f));
+                GUILayout.Label("count : " + count, GUILayout.Width(300f));
+                /*
+                GUILayout.Label("Vessel pqsAlt : " + fgavpqsalt, GUILayout.Width(300f));
+                */
+            GUILayout.EndVertical();
             GUI.DragWindow();
         }
 
@@ -137,7 +152,7 @@ namespace AutoSmartParts
         {
             lastAlt = alt;
 
-            if (FlightGlobals.ActiveVessel.heightFromTerrain < 100 && !overOcean()) // <10 because you don't need that much precision over 10m. and it avoid the go up and raycast go through you bug
+            if (FlightGlobals.ActiveVessel.heightFromTerrain < 50 && !overOcean()) // <10 because you don't need that much precision over 10m. and it avoid the go up and raycast go through you bug
             {
                 RaycastHit pHit;
                 Vector3 partEdge = this.part.collider.ClosestPointOnBounds(FlightGlobals.currentMainBody.position);
@@ -176,11 +191,18 @@ namespace AutoSmartParts
                     }
                     else if (!isLow && alt < Altitude)
                     {
-                        if (lastAlt > alt && (int)this.vessel.situation > 2)// if descending and not landed
+                        if (alt < lastAlt && (int)this.vessel.situation > 2 && !this.part.ShieldedFromAirstream)// if descending and not landed
                         {
-                            ((ModuleLandingLeg)this.part.Modules["ModuleLandingLeg"]).LowerLeg();
-                            isLow = true;
+                            count++;
+                            if(count >50)
+                            {
+                                ((ModuleLandingLeg)this.part.Modules["ModuleLandingLeg"]).LowerLeg();
+                                isLow = true;
+                                count = 0;
+                            }
                         }
+                        else
+                        { count = 0; }
                     }
                 }
             }

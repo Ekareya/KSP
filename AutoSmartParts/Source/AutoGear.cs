@@ -44,6 +44,7 @@ namespace AutoSmartParts
 
         private bool EditorOn = false;
 
+        private int count = 0;
         #endregion
 
         #region methode
@@ -93,8 +94,7 @@ namespace AutoSmartParts
                 GUILayout.Label("Debug-------------------------", GUILayout.Width(300f));
                 //GUILayout.Label("Ascending : " + ascending, GUILayout.Width(300f));
                 GUILayout.Label("Altitude : " + alt, GUILayout.Width(300f));
-                /*GUILayout.Label("isLow : " + isLow, GUILayout.Width(300f));
-                GUILayout.Label("onGround : " + onGround, GUILayout.Width(300f));
+                GUILayout.Label("count : " + count, GUILayout.Width(300f));/*
                 GUILayout.Label("overOcean : " + oc, GUILayout.Width(300f));      
                 GUILayout.Label("Vessel altitu : "+fgavalt, GUILayout.Width(300f));
                 GUILayout.Label("Vessel pqsAlt : " + fgavpqsalt, GUILayout.Width(300f));
@@ -181,7 +181,7 @@ namespace AutoSmartParts
 
         public override void OnFixedUpdate()//check every 10 update ?
         {
-           
+            bool onFlight = alt > LowerAltitude;
             lastAlt = alt;
 
             if (FlightGlobals.ActiveVessel.heightFromTerrain < 100 && !overOcean()) // <10 because you don't need that much precision over 10m. and it avoid the go up and raycast go through you bug
@@ -194,7 +194,7 @@ namespace AutoSmartParts
             else if (overOcean())
                 alt = FlightGlobals.ActiveVessel.altitude;
             else
-                alt = FlightGlobals.ActiveVessel.heightFromTerrain; 
+                alt = FlightGlobals.ActiveVessel.heightFromTerrain;
             
             //check de l'état pour eviter des bugs en cas de controle manuel
             switch ((int)((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).gearState)
@@ -223,21 +223,39 @@ namespace AutoSmartParts
                 else
                 {
                     //essayer de ne pas prendre en compte les petites variations entre lowalt et raialt i.e  more fuzzyness
-                    if (isLow && alt > RaiseAltitude)
+                    if (isLow && alt > RaiseAltitude && !this.part.ShieldedFromAirstream)
                     {
-                        if (onGround || alt > LowerAltitude)
+                        if (onGround || alt > LowerAltitude || count > 150)
                         {
                             ((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).RaiseLandingGear();
                             isLow = false;
                             onGround = false;
+                            count = 0;
+                        }
+                        else if(lastAlt < alt)//if ascending
+                        {
+                            count++;
+                        }
+                        else
+                        {
+                            count = 0;
                         }
                     }
                     else if (!isLow && alt < LowerAltitude)
                     {
-                        if( lastAlt > alt)// if descending
+                        if (lastAlt > alt)// if descendingss
                         {
-                            ((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).LowerLandingGear();
-                            isLow = true;
+                            count++;
+                            if (count > 75 || onFlight)
+                            {
+                                ((ModuleLandingGear)this.part.Modules["ModuleLandingGear"]).LowerLandingGear();
+                                isLow = true;
+                                count = 0;
+                            }
+                        }
+                        else
+                        {
+                            count = 0;
                         }
                     }
                 }

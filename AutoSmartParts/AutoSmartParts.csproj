@@ -45,6 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\AutoDecouple.cs" />
     <Compile Include="Source\AutoDeploy.cs" />
     <Compile Include="Source\AutoLeg.cs" />
     <Compile Include="Source\AutoGear.cs" />
