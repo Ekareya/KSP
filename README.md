@@ -22,7 +22,10 @@ Won't extend inside a fairing.
 TODO:
 
 -Auto Fairing deployement in space
+
 -Auto turn off surface control in space
+
 -Auto decouple on empty tank
+
 
 License: MIT.
