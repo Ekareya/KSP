@@ -20,10 +20,9 @@ Your Solar panel will automatically retract or extend depending on the atmospher
 Won't extend inside a fairing.
 
 TODO:
+
 -Auto Fairing deployement in space
-
 -Auto turn off surface control in space
-
 -Auto decouple on empty tank
 
 License: MIT.
