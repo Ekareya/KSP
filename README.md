@@ -4,6 +4,8 @@
 This mod will aim to add basic automation into standard part.
 The first one is the auto raise/lower landing gear for plane.
 
+ModuleManager is required but not included in the download, please download it from [here](http://forum.kerbalspaceprogram.com/threads/55219)
+
 **AutoGear and AutoLeg:**
 
 The Gear action group act as a global switch for the automation.
